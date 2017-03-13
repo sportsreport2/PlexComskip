@@ -90,3 +90,5 @@ ENV/
 
 # User config
 PlexComskip.conf
+
+.DS_Store

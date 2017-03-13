@@ -33,3 +33,14 @@ save-always: False
 
 # Save intermediate files when something goes wrong? Also useful for debugging and less space intensive. Defaults to True.
 save-forensics: True
+
+# Convert original to new format (convert-to) (Conversion will happen after commercials are stripped)
+convert-original: True
+
+# File type to convert the file to
+convert-to: .mkv
+
+[File Processing]
+
+#If argument is a directory, this is the type of files to process. This should be the extension. Ex. [.ts, .mov, .mp4, .mkv, .etc]
+process-file-type: .ts
