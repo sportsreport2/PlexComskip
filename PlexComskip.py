@@ -237,7 +237,7 @@ def process(video_path):
     elif input_size and 1.1 > float(output_size) / float(input_size) > 0.5:
       logging.info('Output file size looked sane, we\'ll replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
   
-      if CONVERT:
+      if CONVERT and orig_video_ext != NEW_VIDEO_EXT:
         cmd = NICE_ARGS + [FFMPEG_PATH, '-i', os.path.join(temp_dir, orig_video_basename), '-c:a', 'aac', os.path.join(temp_dir, new_video_basename)]
         logging.info('Converting the input file: %s -> %s' % (orig_video_ext, NEW_VIDEO_EXT))
         subprocess.call(cmd)
@@ -245,9 +245,11 @@ def process(video_path):
       logging.info('Copying the output file into place: %s -> %s' % (new_video_basename, original_video_dir))
       shutil.copy(os.path.join(temp_dir, new_video_basename), original_video_dir)
 
-      if DELETE_ORIGINAL:
-        logging.info('Deleting the original file: %s' % os.path.join(root, temp_video_path))
-        os.remove(os.path.join(root, temp_video_path));
+      #Don't delete the original if the old and new have the same filename
+      #If old and new have same filename it was overwritten in previous copy step
+      if DELETE_ORIGINAL and orig_video_basename != new_video_basename:
+        logging.info('Deleting the original file: %s' % os.path.join(original_video_dir, temp_video_path))
+        os.remove(os.path.join(original_video_dir, temp_video_path));
 
       cleanup_and_exit(temp_dir, SAVE_ALWAYS)
     else:

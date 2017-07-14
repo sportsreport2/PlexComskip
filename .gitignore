@@ -92,3 +92,6 @@ ENV/
 PlexComskip.conf
 
 .DS_Store
+
+#sublime text
+*.sublime-workspace
