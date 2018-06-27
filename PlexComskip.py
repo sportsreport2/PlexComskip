@@ -123,6 +123,7 @@ def process(video_path):
     orig_video_basename = os.path.basename(video_path)
     orig_video_name, orig_video_ext = os.path.splitext(orig_video_basename)
     new_video_basename = orig_video_basename
+    subtitle_basename = orig_video_name + '.en.srt'
     if CONVERT:
       new_video_basename = orig_video_name + NEW_VIDEO_EXT
   
@@ -237,6 +238,15 @@ def process(video_path):
     elif input_size and 1.1 > float(output_size) / float(input_size) > 0.5:
       logging.info('Output file size looked sane, we\'ll replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
   
+      #Generate Subtitles
+      try:
+        cmd = NICE_ARGS + [FFMPEG_PATH, '-f', 'lavfi', '-i', 'movie='+os.path.join(temp_dir, orig_video_basename)+'[out+subcc]', '-map', '0:1', os.path.join(temp_dir, subtitle_basename)]
+        logging.info('Generate subtitles: [ffmpeg] Command: %s' % cmd)
+        subprocess.call(cmd)
+  
+      except Exception, e:
+        logging.error('Something went wrong during subtitle generation: %s' % e)
+
       if CONVERT and orig_video_ext != NEW_VIDEO_EXT:
         cmd = NICE_ARGS + [FFMPEG_PATH, '-i', os.path.join(temp_dir, orig_video_basename), '-c:a', 'aac', os.path.join(temp_dir, new_video_basename)]
         logging.info('Converting the input file: %s -> %s' % (orig_video_ext, NEW_VIDEO_EXT))
@@ -244,6 +254,9 @@ def process(video_path):
       
       logging.info('Copying the output file into place: %s -> %s' % (new_video_basename, original_video_dir))
       shutil.copy(os.path.join(temp_dir, new_video_basename), original_video_dir)
+
+      logging.info('Copying the subtitle file into place: %s -> %s' % (subtitle_basename, original_video_dir))
+      shutil.copy(os.path.join(temp_dir, subtitle_basename), original_video_dir)
 
       #Don't delete the original if the old and new have the same filename
       #If old and new have same filename it was overwritten in previous copy step
